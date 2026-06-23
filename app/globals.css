@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import "maplibre-gl/dist/maplibre-gl.css";
+
+:root {
+  --grace-ivory: #F7F4EF;
+  --grace-stone: #E8E2D9;
+  --grace-ink: #1C1917;
+  --grace-muted: #78716C;
+  
+  --urgent: #E8725A;
+  --project: #D4973A;
+  --prayer: #5B8FCC;
+  --verified: #4A9B6F;
+  --grace-gold: #C9A84C;
+  
+  --background: var(--grace-ivory);
+  --foreground: var(--grace-ink);
+}
+
+@theme inline {
+  --color-grace-ivory: var(--grace-ivory);
+  --color-grace-stone: var(--grace-stone);
+  --color-grace-ink: var(--grace-ink);
+  --color-grace-muted: var(--grace-muted);
+  
+  --color-urgent: var(--urgent);
+  --color-project: var(--project);
+  --color-prayer: var(--prayer);
+  --color-verified: var(--verified);
+  --color-grace-gold: var(--grace-gold);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-cormorant);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Отступ для кнопок управления картой (чтобы не обрезались на телефонах) */
+.maplibregl-ctrl-bottom-right {
+  bottom: 5rem !important;
+  right: 1rem !important;
+}
+
+@media (max-width: 768px) {
+  .maplibregl-ctrl-bottom-right {
+    bottom: 9rem !important; /* На телефонах поднимаем выше кнопки добавления */
+  }
+}
