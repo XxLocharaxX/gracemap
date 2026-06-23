@@ -4,12 +4,14 @@ import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatStore } from '@/store/useChatStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { X, Send } from 'lucide-react';
+import { X, Send, Paperclip, Image as ImageIcon } from 'lucide-react';
 
 export const ChatWindow = () => {
   const { messages, sendMessage, isChatOpen, closeChat, activeChatId, subscribeToChat, activeChatOtherUser } = useChatStore();
   const { user } = useAuthStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
 
   const displayName = activeChatOtherUser?.username || 'Пользователь';
   const initial = displayName[0].toUpperCase();
@@ -34,10 +36,19 @@ export const ChatWindow = () => {
     const form = e.currentTarget;
     const input = form.elements.namedItem('message') as HTMLInputElement;
     const text = input.value.trim();
-    if (!text) return;
     
-    sendMessage(text, user.id);
+    if (!text && !selectedImage) return;
+    
+    sendMessage(text, user.id, selectedImage || undefined);
+    
     form.reset();
+    setSelectedImage(null);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+    }
   };
 
   return (
@@ -107,7 +118,18 @@ export const ChatWindow = () => {
                       ${msg.status === 'sending' ? 'opacity-70' : ''}
                       ${msg.status === 'error' ? 'bg-red-500 text-white' : ''}
                     `}>
-                      <p className="leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
+                      {msg.image_url && (
+                        <div className="mb-2 -mx-1 -mt-1 overflow-hidden rounded-xl">
+                          <img 
+                            src={msg.image_url} 
+                            alt="Прикрепленное изображение" 
+                            className="w-full max-w-[250px] object-cover max-h-[300px]"
+                          />
+                        </div>
+                      )}
+                      {msg.text !== '[Изображение]' && (
+                        <p className="leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
+                      )}
                       <div className={`text-[10px] text-right mt-1.5 flex items-center justify-end gap-1 ${isMe ? 'text-white/60' : 'text-[var(--grace-muted)]'}`}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {isMe && (
@@ -126,11 +148,42 @@ export const ChatWindow = () => {
             <div ref={messagesEndRef} className="h-1" />
           </div>
 
+          {/* Превью выбранной картинки */}
+          {selectedImage && (
+            <div className="px-4 py-2 bg-[var(--grace-stone)]/30 border-t border-[var(--grace-stone)] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-[var(--grace-gold)]" />
+                <span className="text-sm text-[var(--grace-ink)] truncate max-w-[200px]">{selectedImage.name}</span>
+              </div>
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="p-1 rounded-full hover:bg-[var(--grace-stone)] text-[var(--grace-muted)] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* Инпут */}
           <form 
             onSubmit={handleSubmit}
-            className="p-3 border-t border-[var(--grace-stone)] bg-white flex gap-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]"
+            className="p-3 border-t border-[var(--grace-stone)] bg-white flex gap-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] items-center"
           >
+            <button 
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-3 rounded-2xl hover:bg-[var(--grace-stone)] text-[var(--grace-muted)] transition-colors flex shrink-0"
+            >
+              <Paperclip className="w-5 h-5" />
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              accept="image/*" 
+              className="hidden" 
+            />
+            
             <input 
               name="message"
               type="text" 
@@ -140,7 +193,7 @@ export const ChatWindow = () => {
             />
             <button 
               type="submit" 
-              className="bg-[var(--grace-gold)] hover:bg-[#b59540] text-white p-3 rounded-2xl shadow-sm transition-colors active:scale-95 flex items-center justify-center"
+              className="bg-[var(--grace-gold)] hover:bg-[#b59540] text-white p-3 rounded-2xl shadow-sm transition-colors active:scale-95 flex items-center justify-center shrink-0"
             >
               <Send className="w-5 h-5 ml-1" />
             </button>
