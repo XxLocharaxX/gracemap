@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import Map, { Marker, NavigationControl, MapRef } from 'react-map-gl/maplibre';
+import Map, { Marker, NavigationControl, GeolocateControl, MapRef } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useMapStore } from '../store/useMapStore';
 import { useAddRequestStore } from '../store/useAddRequestStore';
@@ -12,9 +12,10 @@ import { UrgentIcon, ProjectIcon, PrayerIcon } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Church } from 'lucide-react';
 
+// По умолчанию центрируем между Европой и РФ
 const INITIAL_VIEW_STATE = {
-  longitude: 14.4378,
-  latitude: 50.0755,
+  longitude: 37.6156, // Долгота Москвы (сдвинул ближе к РФ)
+  latitude: 55.7522,  // Широта Москвы
   zoom: 4,
   pitch: 0,
   bearing: 0
@@ -141,6 +142,12 @@ export const MapComponent = () => {
         renderWorldCopies={false}
       >
         <NavigationControl position="bottom-right" showCompass={false} />
+        <GeolocateControl 
+          position="bottom-right" 
+          positionOptions={{ enableHighAccuracy: true }}
+          trackUserLocation={true}
+          showUserHeading={true}
+        />
         
         <AnimatePresence>
           {isLoaded && !(isAdding && step === 3) && clusters.map((cluster) => {
