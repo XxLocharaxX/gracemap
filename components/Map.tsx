@@ -146,7 +146,6 @@ export const MapComponent = () => {
           position="bottom-right" 
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
-          showUserHeading={true}
         />
         
         <AnimatePresence>
